@@ -1,0 +1,1 @@
+PDF_DIR_PATH = './files_for_retrieval'
