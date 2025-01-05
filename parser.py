@@ -1,7 +1,7 @@
 import glob
 import pymupdf4llm
 import re
-from config import EMBEDDING_MODEL
+from config import EMBEDDING_MODEL, CHUNK_SIZE
 from llama_index.core import Document
 from llama_index.core.node_parser import SentenceSplitter
 from llama_index.core.schema import TextNode
@@ -29,7 +29,7 @@ class PDFParser():
         self.parsed_nodes = nodes
 
     def embed(self):
-        """Make embeddings for parsed nodes and save them to vector storage"""
+        """Make embeddings for parsed nodes"""
         if self.parsed_nodes is not None:
             print('Embedding Nodes...')
 
@@ -40,8 +40,13 @@ class PDFParser():
         else:
             raise TypeError('Please use the .parse() method first.')
 
-    def __save_embeddings(self):
+    def save(self, vector_store):
         """Save embeddings to vector store"""
+        if self.parsed_nodes is not None:
+            vector_store.add(self.parsed_nodes)
+        else:
+            raise TypeError('Please use the .parse() and .embed() methods first.')
+
         
 
     def __get_files(self):
@@ -71,7 +76,7 @@ class PDFParser():
         idxs = []
         nodes = []
         # Split text into chunks and put into list
-        splitter = SentenceSplitter(chunk_size=512)
+        splitter = SentenceSplitter(chunk_size=CHUNK_SIZE)
 
         for idx, doc in enumerate(docs):
             current_chunks = splitter.split_text(doc.text)
